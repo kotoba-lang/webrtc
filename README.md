@@ -88,6 +88,12 @@ call-quality stats. Built on [`kotoba-lang/html`](https://github.com/kotoba-lang
 (ex/stats->csv stats)
 ```
 
+## Test
+
+```sh
+clojure -M:test
+```
+
 ## Why
 
 A video-call host needs to decide, before sending an offer/answer or
