@@ -66,6 +66,49 @@ a separate decision, classified per
 ;; => :good
 ```
 
+## WHIP — ingest to a live streaming server (RFC 9725)
+
+`kotoba.webrtc.session` models a *peer-to-peer* call. `kotoba.webrtc.whip`
+models the other leg a browser needs in practice: publishing one outbound
+stream into an ingest server (Cloudflare Stream Live, Cloudflare Realtime,
+MediaMTX, Broadcast Box, Dolby, …) so it can be transcoded and re-broadcast
+— to RTMP destinations like YouTube Live and Twitch, for instance. Same
+rules as the rest of the library: requests and responses are data, the host
+performs the I/O.
+
+```clojure
+(require '[kotoba.webrtc.whip :as whip])
+
+;; 1. POST the offer
+(whip/publish-request {:endpoint "https://ingest.example/whip" :offer-sdp offer})
+;; => {:url ... :method :post :headers {"Content-Type" "application/sdp"} :body offer}
+
+;; 2. read the reply — Location is resolved against the endpoint, and the
+;;    Link: rel="ice-server" headers come back RTCIceServer-shaped
+(whip/publish-response endpoint {:status 201 :headers {...} :body answer})
+;; => {:ok? true :answer-sdp ... :resource-url ... :ice-servers [{:urls "stun:..."}] :etag ...}
+
+;; 3. trickle ICE / teardown against that resource
+(whip/trickle-request {:resource-url r :sdp-fragment (whip/candidates->sdp-fragment {...})})
+(whip/terminate-request {:resource-url r})
+
+;; …or drive all of it as a reducer, same shape as session/apply-event
+(-> (whip/create-session endpoint token)
+    (whip/apply-event {:type :publish :offer-sdp offer}))
+;; => {:session {... :whip/state :publishing ...} :effects [[:http-request {...}]]}
+```
+
+Three things this handles that a hand-rolled WHIP client usually gets
+wrong, each of them a silent failure rather than a loud one: a **relative
+`Location`** (RFC 9725 §4.1 permits it — treat it as absolute and every
+later PATCH/DELETE addresses a URL that does not exist, leaking the ingest
+session until the server times it out); a **comma inside a quoted TURN
+credential** in the `Link` header (a naive split corrupts the ICE server
+list); and **candidates gathered during the publish round trip** (there is
+no resource to PATCH them to yet — `apply-event` buffers and flushes them
+instead of dropping them, which on a mobile network are often the only
+candidates that would have connected).
+
 ## Operator console (UI/UX)
 
 A read-only HTML dashboard renders active sessions, room membership and
