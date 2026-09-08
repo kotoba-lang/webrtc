@@ -1,6 +1,6 @@
 (ns kotoba.webrtc.whip-test
   (:require [clojure.test :refer [deftest is testing]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [kotoba.webrtc.whip :as whip]))
 
 (def endpoint "https://ingest.example.net/live/whip/abc")

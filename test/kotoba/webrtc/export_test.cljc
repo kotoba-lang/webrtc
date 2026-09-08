@@ -1,5 +1,5 @@
 (ns kotoba.webrtc.export-test
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is]]
             [kotoba.webrtc.session :as session]
             [kotoba.webrtc.stats :as stats]
