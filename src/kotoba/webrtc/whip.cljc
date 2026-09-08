@@ -21,7 +21,7 @@
   remote peer to negotiate with.
 
   Portable (.cljc) across JVM / ClojureScript / SCI / GraalVM."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def sdp-content-type "application/sdp")
 
@@ -100,9 +100,9 @@
   "Case-insensitive header lookup. `headers` may key by string or keyword.
   Returns the first match, or nil."
   [headers header-name]
-  (let [wanted (str/lower-case (name header-name))]
+  (let [wanted (str/lower (name header-name))]
     (some (fn [[k v]]
-            (when (= wanted (str/lower-case (name k)))
+            (when (= wanted (str/lower (name k)))
               (if (sequential? v) (first v) v)))
           headers)))
 
@@ -111,9 +111,9 @@
   as repeated headers (a sequential value here) or as one comma-joined
   value; callers should not have to care which."
   [headers header-name]
-  (let [wanted (str/lower-case (name header-name))]
+  (let [wanted (str/lower (name header-name))]
     (into []
-          (comp (filter (fn [[k _]] (= wanted (str/lower-case (name k)))))
+          (comp (filter (fn [[k _]] (= wanted (str/lower (name k)))))
                 (mapcat (fn [[_ v]] (if (sequential? v) v [v]))))
           headers)))
 
@@ -176,9 +176,9 @@
                                    (when-not (str/blank? p)
                                      (let [idx (str/index-of p "=")]
                                        (if idx
-                                         [(keyword (str/lower-case (str/trim (subs p 0 idx))))
+                                         [(keyword (str/lower (str/trim (subs p 0 idx))))
                                           (unquote-param (subs p (inc idx)))]
-                                         [(keyword (str/lower-case p)) true]))))))
+                                         [(keyword (str/lower p)) true]))))))
                          (rest (split-params param-str)))]
         {:uri uri :params params}))))
 

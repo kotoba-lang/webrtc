@@ -3,7 +3,7 @@
 
   Renders session and call-quality stats records to CSV and JSON for audit
   and downstream reporting. Pure data → text: no network."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [kotoba.webrtc.stats :as stats]))
 
 (defn- csv-cell [v]
