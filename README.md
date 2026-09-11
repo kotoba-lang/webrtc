@@ -134,7 +134,7 @@ call-quality stats. Built on [`kotoba-lang/html`](https://github.com/kotoba-lang
 ## Test
 
 ```sh
-clojure -M:test
+kbb -M:test
 ```
 
 ## Why
